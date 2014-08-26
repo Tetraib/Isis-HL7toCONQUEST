@@ -5,40 +5,44 @@ fs = require('fs'),
 child;
 
 app.use(function(req, res, next) {
-    if (req.is('text/*')) {
-        req.text = '';
-        req.setEncoding('utf8');
-        req.on('data', function(chunk) {
-            req.text += chunk;
-        });
-        req.on('end', next);
-    }
-    else {
-        next();
-    }
+	if (req.is('text/*')) {
+		req.text = '';
+		req.setEncoding('utf8');
+		req.on('data', function(chunk) {
+			req.text += chunk;
+		});
+		req.on('end', next);
+	}
+	else {
+		next();
+	}
 });
 
 app.get('/', function(req, res) {
-	res.send("Hello world");
+	res.send("Isis-HL7toCONQUEST is running smouthly..");
 
 });
+
 app.post('/HL7_IN', function(req, res) {
 	console.log(req.text)
+	var filename = Date.now()+".hl7"
 	
-    fs.writeFile("./hl7/test", req.text, function(err) {
-    if(err) {
-        console.log(err);
-    } else {
-        console.log("The file was saved!");
-        // child = exec('dgate –loadhl7:file',
-//  function (error, stdout, stderr) {
-//      if (error !== null) {
-//          console.log('exec error: ' + error);
-//      }
-//  });
-    }
-}); 
+	fs.writeFile("./hl7/"+filename, req.text, function(err) {
+		if(err) {
+			console.log(err);
+		} else {
+			res.status(200).end();
+			child = exec(path.normalize(__dirname + "/../dgate –loadhl7:")+"./hl7/"+filename
+				function (error, stdout, stderr) {
+					if (error !== null) {
+						console.log('exec error: ' + error);
+					}else{
+						
+					}
+				});
 
-res.status(200).end();
+		}
+	}); 
 });
-app.listen(1338, '127.0.0.1');
+
+app.listen(1337, '127.0.0.1');
