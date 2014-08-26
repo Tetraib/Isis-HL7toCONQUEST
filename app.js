@@ -2,6 +2,7 @@ var express = require("express"),
 app = express(),
 exec = require('child_process').exec,
 fs = require('fs'),
+path= require('path'),
 child;
 
 app.use(function(req, res, next) {
@@ -24,15 +25,15 @@ app.get('/', function(req, res) {
 });
 
 app.post('/HL7_IN', function(req, res) {
-	console.log(req.text)
-	var filename = Date.now()+".hl7"
+	console.log(req.text);
+	var filename = Date.now()+".hl7";
 	
 	fs.writeFile("./hl7/"+filename, req.text, function(err) {
 		if(err) {
 			console.log(err);
 		} else {
 			res.status(200).end();
-			child = exec(path.normalize(__dirname + "/../dgate –loadhl7:")+"./hl7/"+filename
+			child = exec(path.normalize(__dirname + "/../dgate –loadhl7:")+"./hl7/"+filename,
 				function (error, stdout, stderr) {
 					if (error !== null) {
 						console.log('exec error: ' + error);
