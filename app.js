@@ -1,9 +1,9 @@
 var express = require("express"),
-app = express(),
-exec = require('child_process').exec,
-fs = require('fs'),
-path= require('path'),
-child;
+	app = express(),
+	exec = require('child_process').exec,
+	fs = require('fs'),
+	path = require('path'),
+	child;
 
 app.use(function(req, res, next) {
 	if (req.is('text/*')) {
@@ -26,24 +26,24 @@ app.get('/', function(req, res) {
 
 app.post('/HL7_IN', function(req, res) {
 	console.log(req.text);
-	var filename = Date.now()+".hl7";
-	
-	fs.writeFile("./hl7/"+filename, req.text, function(err) {
-		if(err) {
+	var filename = Date.now() + ".hl7";
+
+	fs.writeFile("./hl7/" + filename, req.text, function(err) {
+		if (err) {
 			console.log(err);
-		} else {
-			res.status(200).end();
-			child = exec(path.normalize(__dirname + "/../dgate –loadhl7:")+"./hl7/"+filename,
-				function (error, stdout, stderr) {
+		}
+		else {
+			child = exec(path.normalize(__dirname + "/../dgate –loadhl7:") + "./hl7/" + filename,
+				function(error, stdout, stderr) {
 					if (error !== null) {
 						console.log('exec error: ' + error);
-					}else{
-						
+					}
+					else {
+						res.status(200).end();
 					}
 				});
-
 		}
-	}); 
+	});
 });
 
 app.listen(1337, '127.0.0.1');
