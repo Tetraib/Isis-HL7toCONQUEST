@@ -1,6 +1,7 @@
 var express = require("express"),
 app = express(),
 exec = require('child_process').exec,
+fs = require('fs'),
 child;
 
 app.use(function(req, res, next) {
@@ -23,12 +24,21 @@ app.get('/', function(req, res) {
 });
 app.post('/HL7_IN', function(req, res) {
 	console.log(req.text)
-	res.status(200).end();
-// child = exec('C:\\Windows\\notepad.exe C:\\Users\\Thibaut\\NODEJS\\Isis-HL7toCONQUEST\\README.md',
-// 	function (error, stdout, stderr) {
-// 		if (error !== null) {
-// 			console.log('exec error: ' + error);
-// 		}
-// 	});
+	
+    fs.writeFile("./hl7/test", req.text, function(err) {
+    if(err) {
+        console.log(err);
+    } else {
+        console.log("The file was saved!");
+        // child = exec('dgate –loadhl7:file',
+//  function (error, stdout, stderr) {
+//      if (error !== null) {
+//          console.log('exec error: ' + error);
+//      }
+//  });
+    }
+}); 
+
+res.status(200).end();
 });
 app.listen(1338, '127.0.0.1');
