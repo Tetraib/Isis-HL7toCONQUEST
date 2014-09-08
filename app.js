@@ -1,10 +1,18 @@
 var express = require("express"),
 	app = express(),
-	exec = require('child_process').exec,
+	child_process = require('child_process'),
 	fs = require('fs'),
 	path = require('path'),
-	child;
-
+	mysql = require('mysql'),
+	bodyParser = require('body-parser'),
+	exec,
+	mysqlonnection = mysql.createConnection({
+		host: 'localhost',
+		user: 'me',
+		password: 'secret',
+		database:'conquest'
+	});
+app.use(bodyParser.json());
 app.use(function(req, res, next) {
 	if (req.is('text/*')) {
 		req.text = '';
@@ -25,7 +33,6 @@ app.get('/', function(req, res) {
 });
 
 app.post('/HL7_IN', function(req, res) {
-	console.log(req.text);
 	var filename = Date.now() + ".hl7";
 
 	fs.writeFile("./hl7/" + filename, req.text, function(err) {
@@ -33,17 +40,33 @@ app.post('/HL7_IN', function(req, res) {
 			console.log(err);
 		}
 		else {
-			child = exec(path.normalize(__dirname + "/../dgate –loadhl7:") + "./hl7/" + filename,
-				function(error, stdout, stderr) {
-					if (error !== null) {
-						console.log('exec error: ' + error);
-					}
-					else {
-						res.status(200).end();
-					}
-				});
+			exec = child_process.exec("loadhl7.cmd " + path.normalize(__dirname + "/hl7/") + filename);
+			exec.stdout.on('data', function(data) {});
+			exec.stderr.on('data', function(data) {});
+			exec.on('close', function(code) {
+				//it bug with code 1 but the action is done properly :-/ ...
+				res.status("200").end();
+			});
 		}
 	});
+});
+
+app.post('/JSON_IN', function(req, res) {
+	mysqlonnection.connect();
+
+	if (req.body.action == "add") {
+		delete req.body.action;
+		mysqlonnection.query('INSERT INTO dicomworklist SET ?', req.body, function(err, result) {
+			if (err) {
+				console.log(err);
+			}
+			else {
+				res.status("200").end();
+			}
+		});
+	}
+
+	mysqlonnection.end();
 });
 
 app.listen(1337, '127.0.0.1');

@@ -1,12 +1,14 @@
 {
-  "name": "Test",
-  "description": "Site du jeu de rôle rauks.org",
+  "name": "Isis-HL7toCONQUEST",
+  "description": "Interface web hl7 to conquest",
   "author": "Thibaut CONSTANT",
   "version": "0.0.1",
   "dependencies": {
-    "express": "4.x.x"
-},
-"engines": {
+    "express": "4.x.x",
+    "mysql": "2.x.x",
+    "body-parser": "1.X.X"
+  },
+  "engines": {
     "node": "0.x.x",
     "npm": "1.x.x"
   }
