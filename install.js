@@ -2,8 +2,8 @@ var Service = require('node-windows').Service;
 
 // Create a new service object
 var svc = new Service({
-  name:'Hello World',
-  description: 'The nodejs.org example web server.',
+  name:'Hl7Worklist',
+  description: 'Worklist node to conguest',
   script: require('path').join(__dirname,'app.js')
 });
 

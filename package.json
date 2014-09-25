@@ -9,7 +9,6 @@
     "body-parser": "1.X.X"
   },
   "engines": {
-    "node": "0.x.x",
-    "npm": "1.x.x"
+    "node": "0.x.x"
   }
 }
