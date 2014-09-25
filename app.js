@@ -1,16 +1,13 @@
 var express = require("express"),
 	app = express(),
-	child_process = require('child_process'),
-	fs = require('fs'),
-	path = require('path'),
 	mysql = require('mysql'),
 	bodyParser = require('body-parser'),
-	exec,
-	mysqlonnection = mysql.createConnection({
+
+	mysqlPool = mysql.createPool({
 		host: 'localhost',
 		user: 'me',
 		password: 'secret',
-		database:'conquest'
+		database: 'conquest'
 	});
 app.use(bodyParser.json());
 app.use(function(req, res, next) {
@@ -32,41 +29,30 @@ app.get('/', function(req, res) {
 
 });
 
-app.post('/HL7_IN', function(req, res) {
-	var filename = Date.now() + ".hl7";
-
-	fs.writeFile("./hl7/" + filename, req.text, function(err) {
+app.post('/JSON_IN', function(req, res) {
+	mysqlPool.getConnection(function(err, connection) {
 		if (err) {
 			console.log(err);
 		}
 		else {
-			exec = child_process.exec("loadhl7.cmd " + path.normalize(__dirname + "/hl7/") + filename);
-			exec.stdout.on('data', function(data) {});
-			exec.stderr.on('data', function(data) {});
-			exec.on('close', function(code) {
-				//it bug with code 1 but the action is done properly :-/ ...
-				res.status("200").end();
-			});
+			if (req.body.action == "add") {
+				delete req.body.action;
+				connection.query('INSERT INTO dicomworklist SET ?', req.body, function(err, result) {
+					if (err) {
+						console.log(err);
+					}
+					else {
+						res.status("200").end();
+					}
+				});
+			}
+			connection.release();
 		}
 	});
 });
 
-app.post('/JSON_IN', function(req, res) {
-	mysqlonnection.connect();
+// app.post('/HL7_IN', function(req, res) {
 
-	if (req.body.action == "add") {
-		delete req.body.action;
-		mysqlonnection.query('INSERT INTO dicomworklist SET ?', req.body, function(err, result) {
-			if (err) {
-				console.log(err);
-			}
-			else {
-				res.status("200").end();
-			}
-		});
-	}
-
-	mysqlonnection.end();
-});
+// });
 
 app.listen(1337, '127.0.0.1');
